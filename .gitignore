@@ -1,0 +1,25 @@
+# Excel files
+*.xlsx
+*.xls
+
+# PDF files
+*.pdf
+
+# Debug files
+debug_*.py
+
+# Analysis output files
+detailed_analysis.md
+
+# macOS
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/

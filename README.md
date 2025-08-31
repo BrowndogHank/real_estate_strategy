@@ -29,36 +29,36 @@ pip install -r requirements.txt
 ### Basic Usage
 ```bash
 python home_analyzer.py \
-  --new-home-price 865000 \
-  --inheritance 353000 \
-  --sale-price 700000 \
-  --rental-income 5000 \
-  --property-tax 25000 \
-  --insurance 10000
+  --new-home-price 425000 \
+  --inheritance 180000 \
+  --sale-price 320000 \
+  --rental-income 2800 \
+  --property-tax 8500 \
+  --insurance 3200
 ```
 
 ### With Export to Markdown
 ```bash
 python home_analyzer.py \
-  --new-home-price 865000 \
-  --inheritance 353000 \
-  --sale-price 700000 \
-  --rental-income 5000 \
-  --property-tax 25000 \
-  --insurance 10000 \
+  --new-home-price 425000 \
+  --inheritance 180000 \
+  --sale-price 320000 \
+  --rental-income 2800 \
+  --property-tax 8500 \
+  --insurance 3200 \
   --export my_analysis.md
 ```
 
 ### All Parameters
 ```bash
 python home_analyzer.py \
-  --new-home-price 865000 \
-  --inheritance 353000 \
-  --sale-price 700000 \
-  --rental-income 5000 \
-  --property-tax 25000 \
-  --insurance 10000 \
-  --interest-rate 6.5 \
+  --new-home-price 425000 \
+  --inheritance 180000 \
+  --sale-price 320000 \
+  --rental-income 2800 \
+  --property-tax 8500 \
+  --insurance 3200 \
+  --interest-rate 5.25 \
   --excel-file custom_expenses.xlsx \
   --export detailed_results.md
 ```
@@ -73,7 +73,7 @@ python home_analyzer.py \
 | `--rental-income` | Yes | Expected monthly rental income | - |
 | `--property-tax` | Yes | New home annual property tax | - |
 | `--insurance` | Yes | New home annual insurance | - |
-| `--interest-rate` | No | Mortgage interest rate (%) | 6.13 |
+| `--interest-rate` | No | Mortgage interest rate (%) | 5.75 |
 | `--excel-file` | No | Excel file with financial data | joint_expenses_input.xlsx |
 | `--export` | No | Export results to markdown file | - |
 
@@ -106,35 +106,35 @@ The tool provides:
 
 ```
 ╭─ Current Financial Position ─╮
-│ Monthly Income: $24,000.00   │
-│ Monthly Expenses: $34,722.73 │
-│ Monthly Surplus: $-10,722.73 │
-│ Annual Surplus: $-128,672.76 │
+│ Monthly Income: $12,500.00   │
+│ Monthly Expenses: $16,850.42 │
+│ Monthly Surplus: $-4,350.42  │
+│ Annual Surplus: $-52,204.96  │
 ╰──────────────────────────────╯
 
                    Strategy Comparison                    
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
 ┃ Metric                 ┃ Rental Strategy ┃ Sell Strategy     ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
-│ New Monthly Surplus    │ $-12,153.02     │ $-13,238.40       │
-│ Annual Surplus         │ $-145,836.22    │ $-158,860.76      │
+│ New Monthly Surplus    │ $-5,842.18      │ $-6,925.73        │
+│ Annual Surplus         │ $-70,106.14     │ $-83,108.82       │
 └────────────────────────┴─────────────────┴───────────────────┘
 
 ╭──────────────────── Recommendation ─────────────────────╮
-│ RECOMMEND: Rental Strategy - $13,024.54 better annually │
+│ RECOMMEND: Rental Strategy - $13,002.68 better annually │
 ╰─────────────────────────────────────────────────────────╯
 ```
 
 ## Risk Scenarios Analyzed
 
 ### Rental Strategy Risks
-- Vacancy periods (3 months/year)
-- Major repairs ($10,000)
-- Lower rental income (20% reduction)
+- Vacancy periods (2 months/year)
+- Major repairs ($7,500)
+- Lower rental income (15% reduction)
 
 ### Sell Strategy Risks  
-- Lower sale price ($50,000 less)
-- Closing/selling costs ($15,000)
+- Lower sale price ($25,000 less)
+- Closing/selling costs ($8,500)
 
 ## Contributing
 
