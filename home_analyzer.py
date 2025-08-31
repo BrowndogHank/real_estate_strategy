@@ -292,9 +292,12 @@ class RealEstateAnalyzer:
             'new_property_tax': monthly_property_tax,
             'new_insurance': monthly_insurance,
             'new_home_piti': new_home_piti,
+            'new_home_operating_costs': new_home_operating_costs,
+            'new_home_utilities': new_home_utilities,
             'remaining_debt_payment': total_remaining_debt_payment,
             'current_mortgage_payment': current_mortgage_payment,
             'current_home_operating_costs': current_home_operating_costs,
+            'current_home_utilities': current_home_utilities,
             'rental_income': rental_income,
             'net_new_housing_cost': net_new_housing_cost,
             'net_monthly_impact': net_monthly_impact,
@@ -591,11 +594,14 @@ class RealEstateAnalyzer:
             ("Property Tax", f"${rental_results['new_property_tax']:,.2f}", f"${sell_results['new_property_tax']:,.2f}"),
             ("Insurance", f"${rental_results['new_insurance']:,.2f}", f"${sell_results['new_insurance']:,.2f}"),
             ("New Home PITI", f"${rental_results['new_home_piti']:,.2f}", f"${sell_results['new_home_piti']:,.2f}"),
+            ("New Home Operating Costs", f"${rental_results.get('new_home_operating_costs', 0):,.2f}", f"${sell_results.get('new_home_operating_costs', 0):,.2f}"),
+            ("New Home Utilities", f"${rental_results.get('new_home_utilities', 0):,.2f}", f"${sell_results.get('new_home_utilities', 0):,.2f}"),
             ("", "", ""),
             ("🏡 Current Home Impact", "", ""),
             ("Current Mortgage Payment", f"${rental_results['current_mortgage_payment']:,.2f} (continues)", f"${sell_results['eliminated_mortgage_payment']:,.2f} (eliminated)"),
             ("Current Debt Payments", f"${rental_results.get('total_current_debt_payment', 0):,.2f} → ${rental_results['remaining_debt_payment']:,.2f}", f"${sell_results.get('eliminated_debt_payments', 0):,.2f} (eliminated)"),
-            ("Operating Costs", f"${rental_results['current_home_operating_costs']:,.2f} (continues)", f"${sell_results['eliminated_operating_costs']:,.2f} (eliminated)"),
+            ("Current Home Operating Costs", f"${rental_results['current_home_operating_costs']:,.2f} (continues)", f"${sell_results['eliminated_operating_costs']:,.2f} (eliminated)"),
+            ("Current Home Utilities", f"${rental_results.get('current_home_utilities', 0):,.2f} (continues)", f"${sell_results.get('eliminated_utilities', 0):,.2f} (eliminated)"),
             ("Rental Income", f"${rental_results['rental_income']:,.2f}", "N/A"),
             ("Debt Payment Savings", f"${rental_results.get('debt_payment_savings', 0):,.2f}", f"${sell_results.get('eliminated_debt_payments', 0):,.2f} (all eliminated)"),
             ("", "", ""),
@@ -660,11 +666,15 @@ Diff:     {diff_text}
         
         table.add_row("💰 NEW EXPENSES", "", "")
         table.add_row("  New Home PITI", f"${rental_results['new_home_piti']:,.2f}", f"${sell_results['new_home_piti']:,.2f}")
+        table.add_row("  New Home Operating Costs", f"${rental_results.get('new_home_operating_costs', 0):,.2f}", f"${sell_results.get('new_home_operating_costs', 0):,.2f}")
+        table.add_row("  New Home Utilities", f"${rental_results.get('new_home_utilities', 0):,.2f}", f"${sell_results.get('new_home_utilities', 0):,.2f}")
         table.add_row("  Remaining Debt Payments", f"${rental_results['remaining_debt_payment']:,.2f}", "$0 (all eliminated)")
         table.add_row("", "", "")
         
         table.add_row("🏠 CURRENT HOME", "", "")
-        table.add_row("  Mortgage + Operating", f"${rental_results['current_mortgage_payment'] + rental_results['current_home_operating_costs']:,.2f} (continues)", f"${sell_results['eliminated_mortgage_payment'] + sell_results['eliminated_operating_costs']:,.2f} (eliminated)")
+        table.add_row("  Current Mortgage Payment", f"${rental_results['current_mortgage_payment']:,.2f} (continues)", f"${sell_results['eliminated_mortgage_payment']:,.2f} (eliminated)")
+        table.add_row("  Current Home Operating Costs", f"${rental_results['current_home_operating_costs']:,.2f} (continues)", f"${sell_results['eliminated_operating_costs']:,.2f} (eliminated)")
+        table.add_row("  Current Home Utilities", f"${rental_results.get('current_home_utilities', 0):,.2f} (continues)", f"${sell_results.get('eliminated_utilities', 0):,.2f} (eliminated)")
         table.add_row("  Rental Income", f"-${rental_results['rental_income']:,.2f}", "N/A")
         table.add_row("  Debt Payments", f"${rental_results.get('debt_payment_savings', 0):,.2f} (saved)", f"${sell_results.get('eliminated_debt_payments', 0):,.2f} (eliminated)")
         table.add_row("", "", "")
@@ -789,8 +799,11 @@ Diff:     {diff_text}
 - **Property Tax (Monthly):** ${rental_results['new_property_tax']:,.2f}
 - **Insurance (Monthly):** ${rental_results['new_insurance']:,.2f}
 - **New Home PITI:** ${rental_results['new_home_piti']:,.2f}
+- **New Home Operating Costs:** ${rental_results.get('new_home_operating_costs', 0):,.2f}
+- **New Home Utilities:** ${rental_results.get('new_home_utilities', 0):,.2f}
 - **Remaining Debt Payment:** ${rental_results['remaining_debt_payment']:,.2f}
 - **Current Home Operating Costs:** ${rental_results['current_home_operating_costs']:,.2f}
+- **Current Home Utilities:** ${rental_results.get('current_home_utilities', 0):,.2f}
 - **Rental Income:** ${rental_results['rental_income']:,.2f}
 - **Debt Eliminated:** {rental_results['debt_eliminated']} liens
 - **Net Monthly Impact:** ${rental_results['net_monthly_impact']:,.2f}
@@ -810,7 +823,13 @@ Diff:     {diff_text}
 - **Property Tax (Monthly):** ${sell_results['new_property_tax']:,.2f}
 - **Insurance (Monthly):** ${sell_results['new_insurance']:,.2f}
 - **New Home PITI:** ${sell_results['new_home_piti']:,.2f}
+- **New Home Operating Costs:** ${sell_results.get('new_home_operating_costs', 0):,.2f}
+- **New Home Utilities:** ${sell_results.get('new_home_utilities', 0):,.2f}
 - **Eliminated Expenses:** ${sell_results['eliminated_expenses']:,.2f}
+  - **Eliminated Mortgage Payment:** ${sell_results['eliminated_mortgage_payment']:,.2f}
+  - **Eliminated Operating Costs:** ${sell_results['eliminated_operating_costs']:,.2f}
+  - **Eliminated Utilities:** ${sell_results.get('eliminated_utilities', 0):,.2f}
+  - **Eliminated Debt Payments:** ${sell_results.get('eliminated_debt_payments', 0):,.2f}
 - **Net Monthly Impact:** ${sell_results['net_monthly_impact']:,.2f}
 - **New Monthly Surplus:** ${sell_results['new_monthly_surplus']:,.2f}
 - **NEW ANNUAL SURPLUS:** ${sell_results['annual_surplus']:,.2f}
