@@ -235,24 +235,40 @@ class RealEstateAnalyzer:
             current_mortgage_payment = self.current_finances.get('current_mortgage_payment', 0)
         
         # Calculate incremental impact on current budget
-        # The current surplus already includes current housing payments
-        # So we only need to calculate the ADDITIONAL cost beyond what's already paid
+        # The current surplus already includes current debt payments and mortgage
+        # We need to calculate the net change from current state
         
         total_current_debt_payment = sum(lien.get('monthly_payment', self.calculate_monthly_payment(lien['balance'], lien['rate'])) 
                                        for lien in liens)
         
-        # Debt elimination savings (HELOC payment that disappears)
-        debt_payment_savings = total_current_debt_payment - total_remaining_debt_payment
+        # Calculate the net monthly impact by considering:
+        # 1. Current debt payments are already in the current budget (subtract them as they're current outflow)
+        # 2. Remaining debt payments are new ongoing costs (add them as new outflow)  
+        # 3. New home costs are additional (add them as new outflow)
+        # 4. Rental income is new income (subtract as it reduces net cost)
+        # 5. Current home operating costs continue (add as ongoing cost, though they're already in current budget)
         
-        # Net housing cost after rental income
-        net_new_housing_cost = new_home_piti + total_remaining_debt_payment + current_home_operating_costs - rental_income
+        # The correct approach: Start with current surplus, then add income and subtract new/continuing costs
+        # Current surplus already has: current_debt_payments + current_mortgage_payment + operating_costs built in
+        # So we need: current_surplus + rental_income - new_home_piti - (remaining_debt - current_debt) - (0 if operating costs already in surplus)
         
-        # The incremental impact is just the net new housing cost
-        # (current mortgage payment is already accounted for in the existing surplus)
-        net_monthly_impact = net_new_housing_cost
+        # If current_home_operating_costs are provided explicitly, they may not be in the current_surplus
+        # But current debt payments ARE in the current_surplus, so we need to handle the transition
+        
+        net_monthly_impact = (new_home_piti + 
+                             total_remaining_debt_payment +
+                             current_home_operating_costs -
+                             rental_income -
+                             (current_mortgage_payment + total_current_debt_payment))
         
         # Apply the incremental change to current surplus
         new_monthly_surplus = self.current_finances['monthly_surplus'] - net_monthly_impact
+        
+        # Calculate debt payment savings for reporting
+        debt_payment_savings = total_current_debt_payment - total_remaining_debt_payment
+        
+        # Calculate net new housing cost for reporting purposes (this is what the new costs would be without considering current payments)
+        net_new_housing_cost = new_home_piti + total_remaining_debt_payment + current_home_operating_costs - rental_income
         
         return {
             'strategy': 'Rental Strategy',
