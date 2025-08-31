@@ -30,57 +30,57 @@ pip install -r requirements.txt
 ### Basic Usage
 ```bash
 python home_analyzer.py \
-  --new-home-price 425000 \
-  --total-liquid-cash 180000 \
-  --sale-price 320000 \
-  --rental-income 2800 \
-  --property-tax 8500 \
-  --insurance 3200
+  --new-home-price 565000 \
+  --total-liquid-cash 250000 \
+  --sale-price 485000 \
+  --rental-income 3450 \
+  --property-tax 12500 \
+  --insurance 4200
 ```
 
 ### With Export to Markdown
 ```bash
 python home_analyzer.py \
-  --new-home-price 425000 \
-  --total-liquid-cash 180000 \
-  --sale-price 320000 \
-  --rental-income 2800 \
-  --property-tax 8500 \
-  --insurance 3200 \
-  --export my_analysis.md
+  --new-home-price 485000 \
+  --total-liquid-cash 195000 \
+  --sale-price 375000 \
+  --rental-income 2950 \
+  --property-tax 9800 \
+  --insurance 3850 \
+  --export property_analysis.md
 ```
 
 ### Advanced Usage with Operating Costs and Utilities
 ```bash
 python home_analyzer.py \
-  --new-home-price 425000 \
-  --total-liquid-cash 180000 \
-  --sale-price 320000 \
-  --rental-income 2800 \
-  --property-tax 8500 \
-  --insurance 3200 \
-  --current-home-operating-costs 400 \
-  --current-home-utilities 250 \
-  --new-home-operating-costs 350 \
-  --new-home-utilities 200 \
-  --interest-rate 6.13 \
-  --export detailed_results.md
+  --new-home-price 675000 \
+  --total-liquid-cash 325000 \
+  --sale-price 520000 \
+  --rental-income 3800 \
+  --property-tax 14200 \
+  --insurance 4750 \
+  --current-home-operating-costs 520 \
+  --current-home-utilities 385 \
+  --new-home-operating-costs 480 \
+  --new-home-utilities 320 \
+  --interest-rate 7.25 \
+  --export comprehensive_analysis.md
 ```
 
 ### With Current Home Liens and Debt Strategy
 ```bash
 python home_analyzer.py \
-  --new-home-price 425000 \
-  --total-liquid-cash 180000 \
-  --sale-price 320000 \
-  --rental-income 2800 \
-  --property-tax 8500 \
-  --insurance 3200 \
-  --current-home-liens '[{"balance": 330000, "rate": 2.875, "type": "mortgage"}, {"balance": 23000, "rate": 9.0, "type": "heloc"}]' \
+  --new-home-price 545000 \
+  --total-liquid-cash 275000 \
+  --sale-price 425000 \
+  --rental-income 3200 \
+  --property-tax 11800 \
+  --insurance 4100 \
+  --current-home-liens '[{"balance": 285000, "rate": 3.125, "type": "mortgage"}, {"balance": 18500, "rate": 8.75, "type": "heloc"}]' \
   --pay-off-high-rate-first \
-  --high-rate-threshold 6.0 \
-  --excel-file custom_expenses.xlsx \
-  --export detailed_results.md
+  --high-rate-threshold 5.5 \
+  --excel-file family_finances.xlsx \
+  --export complete_strategy.md
 ```
 
 ## Command Line Arguments
@@ -138,35 +138,35 @@ The tool provides:
 
 ```
 ╭─ Current Financial Position ─╮
-│ Monthly Income: $12,500.00   │
-│ Monthly Expenses: $16,850.42 │
-│ Monthly Surplus: $-4,350.42  │
-│ Annual Surplus: $-52,204.96  │
+│ Monthly Income: $14,750.00   │
+│ Monthly Expenses: $11,425.85 │
+│ Monthly Surplus: $3,324.15   │
+│ Annual Surplus: $39,889.80   │
 ╰──────────────────────────────╯
 
                    Strategy Comparison                    
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
 ┃ Metric                 ┃ Rental Strategy ┃ Sell Strategy     ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
-│ New Monthly Surplus    │ $-5,842.18      │ $-6,925.73        │
-│ Annual Surplus         │ $-70,106.14     │ $-83,108.82       │
+│ New Monthly Surplus    │ $1,847.92       │ $825.44           │
+│ Annual Surplus         │ $22,175.04      │ $9,905.28         │
 └────────────────────────┴─────────────────┴───────────────────┘
 
 ╭──────────────────── Recommendation ─────────────────────╮
-│ RECOMMEND: Rental Strategy - $13,002.68 better annually │
+│ RECOMMEND: Rental Strategy - $12,269.76 better annually │
 ╰─────────────────────────────────────────────────────────╯
 ```
 
 ## Risk Scenarios Analyzed
 
 ### Rental Strategy Risks
-- Vacancy periods (2 months/year)
-- Major repairs ($7,500)
-- Lower rental income (15% reduction)
+- Vacancy periods (3 months/year)
+- Major repairs ($12,000)
+- Lower rental income (20% reduction)
 
 ### Sell Strategy Risks  
-- Lower sale price ($25,000 less)
-- Closing/selling costs ($8,500)
+- Lower sale price ($35,000 less)
+- Closing/selling costs ($15,200)
 
 ## Contributing
 
