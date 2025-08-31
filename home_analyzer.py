@@ -185,6 +185,9 @@ class RealEstateAnalyzer:
         liens = params.get('liens', [])
         current_mortgage_payment = params.get('current_mortgage_payment', 0)
         current_home_operating_costs = params.get('current_home_operating_costs', 0)
+        new_home_operating_costs = params.get('new_home_operating_costs', 0)
+        new_home_utilities = params.get('new_home_utilities', 0)
+        current_home_utilities = params.get('current_home_utilities', 0)
         pay_off_high_rate_first = params.get('pay_off_high_rate_first', True)
         high_rate_threshold = params.get('high_rate_threshold', 6.0)
         
@@ -227,8 +230,15 @@ class RealEstateAnalyzer:
         if current_home_operating_costs == 0 and self.current_finances.get('expense_breakdown'):
             for expense, amount in self.current_finances['expense_breakdown'].items():
                 if any(keyword in expense.lower() for keyword in 
-                      ['lawn', 'pool', 'maintenance', 'fpl', 'cleaning', 'utilities']):
+                      ['lawn', 'pool', 'maintenance', 'fpl', 'cleaning']):
                     current_home_operating_costs += amount
+                    
+        # Auto-detect current home utilities from Excel if not provided
+        if current_home_utilities == 0 and self.current_finances.get('expense_breakdown'):
+            for expense, amount in self.current_finances['expense_breakdown'].items():
+                if any(keyword in expense.lower() for keyword in 
+                      ['utilities', 'electric', 'gas', 'water', 'sewer']):
+                    current_home_utilities += amount
         
         # Auto-detect current mortgage payment if not provided
         if current_mortgage_payment == 0:
@@ -256,8 +266,11 @@ class RealEstateAnalyzer:
         # But current debt payments ARE in the current_surplus, so we need to handle the transition
         
         net_monthly_impact = (new_home_piti + 
+                             new_home_operating_costs +
+                             new_home_utilities +
                              total_remaining_debt_payment +
-                             current_home_operating_costs -
+                             current_home_operating_costs +
+                             current_home_utilities -
                              rental_income -
                              (current_mortgage_payment + total_current_debt_payment))
         
@@ -268,7 +281,7 @@ class RealEstateAnalyzer:
         debt_payment_savings = total_current_debt_payment - total_remaining_debt_payment
         
         # Calculate net new housing cost for reporting purposes (this is what the new costs would be without considering current payments)
-        net_new_housing_cost = new_home_piti + total_remaining_debt_payment + current_home_operating_costs - rental_income
+        net_new_housing_cost = new_home_piti + new_home_operating_costs + new_home_utilities + total_remaining_debt_payment + current_home_operating_costs + current_home_utilities - rental_income
         
         return {
             'strategy': 'Rental Strategy',
@@ -307,6 +320,9 @@ class RealEstateAnalyzer:
         liens = params.get('liens', [])
         current_mortgage_payment = params.get('current_mortgage_payment', 0)
         current_home_operating_costs = params.get('current_home_operating_costs', 0)
+        new_home_operating_costs = params.get('new_home_operating_costs', 0)
+        new_home_utilities = params.get('new_home_utilities', 0)
+        current_home_utilities = params.get('current_home_utilities', 0)
         selling_cost_percentage = params.get('selling_cost_percentage', 7.0) / 100
         
         # Calculate sale proceeds
@@ -329,11 +345,18 @@ class RealEstateAnalyzer:
         
         # Auto-detect costs that will be eliminated
         eliminated_operating_costs = current_home_operating_costs
+        eliminated_utilities = current_home_utilities
         if eliminated_operating_costs == 0 and self.current_finances.get('expense_breakdown'):
             for expense, amount in self.current_finances['expense_breakdown'].items():
                 if any(keyword in expense.lower() for keyword in 
-                      ['lawn', 'pool', 'maintenance', 'fpl', 'cleaning', 'utilities']):
+                      ['lawn', 'pool', 'maintenance', 'fpl', 'cleaning']):
                     eliminated_operating_costs += amount
+                    
+        if eliminated_utilities == 0 and self.current_finances.get('expense_breakdown'):
+            for expense, amount in self.current_finances['expense_breakdown'].items():
+                if any(keyword in expense.lower() for keyword in 
+                      ['utilities', 'electric', 'gas', 'water', 'sewer']):
+                    eliminated_utilities += amount
         
         # Auto-detect current mortgage payment if not provided
         if current_mortgage_payment == 0:
@@ -345,12 +368,12 @@ class RealEstateAnalyzer:
             for lien in liens
         )
         
-        # Calculate net impact: all eliminated expenses minus new home PITI
-        # Eliminated: current mortgage + current debt payments + operating costs
-        eliminated_expenses = current_mortgage_payment + total_current_debt_payments + eliminated_operating_costs
+        # Calculate net impact: all eliminated expenses minus new home costs
+        # Eliminated: current mortgage + current debt payments + operating costs + utilities
+        eliminated_expenses = current_mortgage_payment + total_current_debt_payments + eliminated_operating_costs + eliminated_utilities
         
         # Net impact: positive means additional cost, negative means savings
-        net_monthly_impact = new_home_piti - eliminated_expenses
+        net_monthly_impact = new_home_piti + new_home_operating_costs + new_home_utilities - eliminated_expenses
         new_monthly_surplus = self.current_finances['monthly_surplus'] - net_monthly_impact
         
         return {
@@ -369,6 +392,9 @@ class RealEstateAnalyzer:
             'eliminated_mortgage_payment': current_mortgage_payment,
             'eliminated_debt_payments': total_current_debt_payments,
             'eliminated_operating_costs': eliminated_operating_costs,
+            'eliminated_utilities': eliminated_utilities,
+            'new_home_operating_costs': new_home_operating_costs,
+            'new_home_utilities': new_home_utilities,
             'eliminated_expenses': eliminated_expenses,
             'net_monthly_impact': net_monthly_impact,
             'new_monthly_surplus': new_monthly_surplus,
@@ -867,7 +893,13 @@ def main():
     parser.add_argument("--total-monthly-expenses", type=float,
                        help="Current total monthly expenses (alternative to Excel file)")
     parser.add_argument("--current-home-operating-costs", type=float, default=0,
-                       help="Current home monthly operating costs (lawn, maintenance, utilities, etc.)")
+                       help="Current home monthly operating costs (lawn, maintenance, etc.)")
+    parser.add_argument("--current-home-utilities", type=float, default=0,
+                       help="Current home monthly utilities (electric, gas, water, sewer)")
+    parser.add_argument("--new-home-operating-costs", type=float, default=0,
+                       help="New home monthly operating costs (lawn, maintenance, etc.)")
+    parser.add_argument("--new-home-utilities", type=float, default=0,
+                       help="New home monthly utilities (electric, gas, water, sewer)")
     parser.add_argument("--excel-file", type=str,
                        help="Excel file with baseline financial data (alternative to manual input)")
     parser.add_argument("--export", type=str,
@@ -915,6 +947,9 @@ def main():
         'liens': liens,
         'current_mortgage_payment': args.current_mortgage_payment,
         'current_home_operating_costs': args.current_home_operating_costs,
+        'current_home_utilities': args.current_home_utilities,
+        'new_home_operating_costs': args.new_home_operating_costs,
+        'new_home_utilities': args.new_home_utilities,
         'selling_cost_percentage': args.selling_cost_percentage,
         'liquid_savings': args.liquid_savings,
         'pay_off_high_rate_first': args.pay_off_high_rate_first,
