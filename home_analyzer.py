@@ -575,7 +575,7 @@ class RealEstateAnalyzer:
         panel = Panel.fit(content, title="Current Financial Position", border_style="blue")
         self.console.print(panel)
     
-    def display_detailed_comparison(self, rental_results: Dict, sell_results: Dict):
+    def display_detailed_comparison(self, rental_results: Dict, sell_results: Dict, params: Dict = None):
         """Display detailed side-by-side strategy comparison"""
         table = Table(title="Detailed Strategy Comparison")
         table.add_column("Metric", style="cyan")
@@ -587,6 +587,7 @@ class RealEstateAnalyzer:
             ("🏠 New Home Purchase", "", ""),
             ("Down Payment", f"${rental_results['down_payment']:,.2f}", f"${sell_results['down_payment']:,.2f}"),
             ("New Mortgage Amount", f"${rental_results['new_mortgage_amount']:,.2f}", f"${sell_results['new_mortgage_amount']:,.2f}"),
+            ("New Mortgage Rate", f"{params.get('interest_rate', 6.13) if params else 6.13:.2f}%", f"{params.get('interest_rate', 6.13) if params else 6.13:.2f}%"),
             ("Loan-to-Value Ratio", f"{rental_results['loan_to_value']:.1f}%", f"{sell_results['loan_to_value']:.1f}%"),
             ("", "", ""),
             ("💰 Monthly Costs", "", ""),
@@ -599,7 +600,34 @@ class RealEstateAnalyzer:
             ("", "", ""),
             ("🏡 Current Home Impact", "", ""),
             ("Current Mortgage Payment", f"${rental_results['current_mortgage_payment']:,.2f} (continues)", f"${sell_results['eliminated_mortgage_payment']:,.2f} (eliminated)"),
-            ("Current Debt Payments", f"${rental_results.get('total_current_debt_payment', 0):,.2f} → ${rental_results['remaining_debt_payment']:,.2f}", f"${sell_results.get('eliminated_debt_payments', 0):,.2f} (eliminated)"),
+            ("Current Debt Payments", f"${rental_results.get('total_current_debt_payment', 0):,.2f} → ${rental_results['remaining_debt_payment']:,.2f}", f"${sell_results.get('eliminated_debt_payments', 0):,.2f} (eliminated)")
+        ]
+        
+        # Add individual lien information if available
+        if params and params.get('liens'):
+            for i, lien in enumerate(params['liens']):
+                lien_name = f"  {lien['type'].title()}"
+                lien_balance = f"${lien['balance']:,.2f}"
+                lien_rate = f"@ {lien['rate']:.2f}%"
+                lien_payment = f"${lien.get('monthly_payment', self.calculate_monthly_payment(lien['balance'], lien['rate'])):,.2f}/mo"
+                
+                # Check if this lien remains in rental strategy
+                remaining_lien = None
+                for remaining in rental_results.get('remaining_liens', []):
+                    if (remaining['type'] == lien['type'] and 
+                        remaining.get('balance', 0) > 0):
+                        remaining_lien = remaining
+                        break
+                
+                if remaining_lien:
+                    rental_status = f"${remaining_lien['balance']:,.2f} @ {remaining_lien['rate']:.2f}%"
+                else:
+                    rental_status = "PAID OFF"
+                
+                metrics.append((lien_name, f"{lien_balance} {lien_rate} → {rental_status}", f"{lien_balance} {lien_rate} (eliminated)"))
+        
+        metrics.extend([
+            ("", "", ""),
             ("Current Home Operating Costs", f"${rental_results['current_home_operating_costs']:,.2f} (continues)", f"${sell_results['eliminated_operating_costs']:,.2f} (eliminated)"),
             ("Current Home Utilities", f"${rental_results.get('current_home_utilities', 0):,.2f} (continues)", f"${sell_results.get('eliminated_utilities', 0):,.2f} (eliminated)"),
             ("Rental Income", f"${rental_results['rental_income']:,.2f}", "N/A"),
@@ -609,7 +637,7 @@ class RealEstateAnalyzer:
             ("Net Monthly Impact", f"${rental_results['net_monthly_impact']:,.2f}", f"${sell_results['net_monthly_impact']:,.2f}"),
             ("New Monthly Surplus", f"${rental_results['new_monthly_surplus']:,.2f}", f"${sell_results['new_monthly_surplus']:,.2f}"),
             ("Annual Surplus", f"${rental_results['annual_surplus']:,.2f}", f"${sell_results['annual_surplus']:,.2f}")
-        ]
+        ])
         
         for metric, rental_val, sell_val in metrics:
             if metric.startswith(("🏠", "💰", "🏡", "📊")):
@@ -657,7 +685,7 @@ Diff:     {diff_text}
         )
         self.console.print(summary_panel)
         
-    def display_cash_flow_breakdown(self, rental_results: Dict, sell_results: Dict):
+    def display_cash_flow_breakdown(self, rental_results: Dict, sell_results: Dict, params: Dict = None):
         """Display simplified cash flow breakdown focusing on key differences"""
         table = Table(title="Monthly Cash Flow Impact")
         table.add_column("Component", style="cyan")
@@ -665,7 +693,8 @@ Diff:     {diff_text}
         table.add_column("Sell Strategy", style="yellow")
         
         table.add_row("💰 NEW EXPENSES", "", "")
-        table.add_row("  New Home PITI", f"${rental_results['new_home_piti']:,.2f}", f"${sell_results['new_home_piti']:,.2f}")
+        interest_rate_display = f" @ {params.get('interest_rate', 6.13):.2f}%" if params else ""
+        table.add_row("  New Home PITI" + interest_rate_display, f"${rental_results['new_home_piti']:,.2f}", f"${sell_results['new_home_piti']:,.2f}")
         table.add_row("  New Home Operating Costs", f"${rental_results.get('new_home_operating_costs', 0):,.2f}", f"${sell_results.get('new_home_operating_costs', 0):,.2f}")
         table.add_row("  New Home Utilities", f"${rental_results.get('new_home_utilities', 0):,.2f}", f"${sell_results.get('new_home_utilities', 0):,.2f}")
         table.add_row("  Remaining Debt Payments", f"${rental_results['remaining_debt_payment']:,.2f}", "$0 (all eliminated)")
@@ -784,7 +813,21 @@ Diff:     {diff_text}
 """
         if params.get('liens'):
             for i, lien in enumerate(params['liens'], 1):
-                content += f"{i}. **{lien['type'].title()}:** ${lien['balance']:,.2f} at {lien['rate']:.3f}% (Monthly: ${lien.get('monthly_payment', self.calculate_monthly_payment(lien['balance'], lien['rate'])):,.2f})\n"
+                monthly_payment = lien.get('monthly_payment', self.calculate_monthly_payment(lien['balance'], lien['rate']))
+                content += f"{i}. **{lien['type'].title()}:** ${lien['balance']:,.2f} at {lien['rate']:.2f}% (Monthly: ${monthly_payment:.2f})\n"
+                
+                # Check if lien remains in rental strategy
+                remaining_lien = None
+                for remaining in rental_results.get('remaining_liens', []):
+                    if (remaining['type'] == lien['type'] and remaining.get('balance', 0) > 0):
+                        remaining_lien = remaining
+                        break
+                
+                if remaining_lien:
+                    content += f"   - *Rental Strategy:* Remaining balance ${remaining_lien['balance']:,.2f} at {remaining_lien['rate']:.2f}%\n"
+                else:
+                    content += f"   - *Rental Strategy:* **PAID OFF** with inheritance\n"
+                content += f"   - *Sell Strategy:* **ELIMINATED** through home sale\n"
         else:
             content += "No liens specified\n"
         
@@ -794,6 +837,7 @@ Diff:     {diff_text}
 ### 🟢 Rental Strategy Results
 - **Down Payment:** ${rental_results['down_payment']:,.2f}
 - **New Mortgage Amount:** ${rental_results['new_mortgage_amount']:,.2f}
+- **New Mortgage Rate:** {params.get('interest_rate', 6.13):.2f}%
 - **Loan-to-Value:** {rental_results['loan_to_value']:.1f}%
 - **New Mortgage Payment:** ${rental_results['new_mortgage_payment']:,.2f}
 - **Property Tax (Monthly):** ${rental_results['new_property_tax']:,.2f}
@@ -818,6 +862,7 @@ Diff:     {diff_text}
 - **Total Available Cash:** ${sell_results['total_available_cash']:,.2f}
 - **Down Payment:** ${sell_results['down_payment']:,.2f}
 - **New Mortgage Amount:** ${sell_results['new_mortgage_amount']:,.2f}
+- **New Mortgage Rate:** {params.get('interest_rate', 6.13):.2f}%
 - **Loan-to-Value:** {sell_results['loan_to_value']:.1f}%
 - **New Mortgage Payment:** ${sell_results['new_mortgage_payment']:,.2f}
 - **Property Tax (Monthly):** ${sell_results['new_property_tax']:,.2f}
@@ -892,7 +937,7 @@ def main():
     parser.add_argument("--current-mortgage-payment", type=float, default=0,
                        help="Current total monthly mortgage payment (PITI)")
     parser.add_argument("--selling-cost-percentage", type=float, default=7.0,
-                       help="Selling cost percentage (default: 7%)")
+                       help="Selling cost percentage (default: 7%%)")
     parser.add_argument("--bonus-cash", type=float, default=0,
                        help="Additional cash (e.g., March 2026 bonus)")
     parser.add_argument("--liquid-savings", type=float, default=0,
@@ -902,11 +947,11 @@ def main():
     parser.add_argument("--pay-off-high-rate-first", action="store_true", default=True,
                        help="Pay off highest rate liens first with inheritance")
     parser.add_argument("--high-rate-threshold", type=float, default=6.0,
-                       help="Liens above this rate get paid off first (default: 6.0%)")
+                       help="Liens above this rate get paid off first (default: 6.0%%)")
     
     # Optional parameters
     parser.add_argument("--interest-rate", type=float, default=6.13,
-                       help="Mortgage interest rate (default: 6.13%)")
+                       help="Mortgage interest rate (default: 6.13%%)")
     parser.add_argument("--monthly-income", type=float,
                        help="Current monthly income (alternative to Excel file)")
     parser.add_argument("--total-monthly-expenses", type=float,
@@ -993,9 +1038,9 @@ def main():
     analyzer.console.print("\n")
     analyzer.display_strategy_summary(rental_results, sell_results)
     analyzer.console.print("\n")
-    analyzer.display_detailed_comparison(rental_results, sell_results)
+    analyzer.display_detailed_comparison(rental_results, sell_results, params)
     analyzer.console.print("\n")
-    analyzer.display_cash_flow_breakdown(rental_results, sell_results)
+    analyzer.display_cash_flow_breakdown(rental_results, sell_results, params)
     analyzer.console.print("\n")
     analyzer.display_risk_analysis(risk_scenarios)
     analyzer.console.print("\n")
