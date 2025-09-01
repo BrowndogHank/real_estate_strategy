@@ -30,56 +30,63 @@ pip install -r requirements.txt
 ### Basic Usage
 ```bash
 python home_analyzer.py \
-  --new-home-price 565000 \
-  --total-liquid-cash 250000 \
-  --sale-price 485000 \
-  --rental-income 3450 \
-  --property-tax 12500 \
-  --insurance 4200
+  --new-home-price 425000 \
+  --total-liquid-cash 85000 \
+  --sale-price 350000 \
+  --rental-income 2750 \
+  --property-tax 8400 \
+  --insurance 3200 \
+  --monthly-income 8500 \
+  --total-monthly-expenses 6200
 ```
 
 ### With Export to Markdown
 ```bash
 python home_analyzer.py \
-  --new-home-price 485000 \
-  --total-liquid-cash 195000 \
-  --sale-price 375000 \
-  --rental-income 2950 \
-  --property-tax 9800 \
-  --insurance 3850 \
+  --new-home-price 385000 \
+  --total-liquid-cash 75000 \
+  --sale-price 325000 \
+  --rental-income 2400 \
+  --property-tax 7500 \
+  --insurance 2800 \
+  --monthly-income 7800 \
+  --total-monthly-expenses 5500 \
   --export property_analysis.md
 ```
 
 ### Advanced Usage with Operating Costs and Utilities
 ```bash
 python home_analyzer.py \
-  --new-home-price 675000 \
-  --total-liquid-cash 325000 \
-  --sale-price 520000 \
-  --rental-income 3800 \
-  --property-tax 14200 \
-  --insurance 4750 \
-  --current-home-operating-costs 520 \
-  --current-home-utilities 385 \
-  --new-home-operating-costs 480 \
-  --new-home-utilities 320 \
+  --new-home-price 465000 \
+  --total-liquid-cash 95000 \
+  --sale-price 375000 \
+  --rental-income 2900 \
+  --property-tax 9200 \
+  --insurance 3400 \
+  --current-home-operating-costs 320 \
+  --current-home-utilities 285 \
+  --new-home-operating-costs 350 \
+  --new-home-utilities 240 \
   --interest-rate 7.25 \
+  --monthly-income 8200 \
+  --total-monthly-expenses 5800 \
   --export comprehensive_analysis.md
 ```
 
 ### With Current Home Liens and Debt Strategy
 ```bash
 python home_analyzer.py \
-  --new-home-price 545000 \
-  --total-liquid-cash 275000 \
-  --sale-price 425000 \
-  --rental-income 3200 \
-  --property-tax 11800 \
-  --insurance 4100 \
-  --current-home-liens '[{"balance": 285000, "rate": 3.125, "type": "mortgage"}, {"balance": 18500, "rate": 8.75, "type": "heloc"}]' \
+  --new-home-price 445000 \
+  --total-liquid-cash 85000 \
+  --sale-price 365000 \
+  --rental-income 2650 \
+  --property-tax 8800 \
+  --insurance 3100 \
+  --current-home-liens '[{"balance": 225000, "rate": 3.5, "type": "mortgage"}, {"balance": 15000, "rate": 9.25, "type": "heloc"}]' \
   --pay-off-high-rate-first \
   --high-rate-threshold 5.5 \
-  --excel-file family_finances.xlsx \
+  --monthly-income 7500 \
+  --total-monthly-expenses 5200 \
   --export complete_strategy.md
 ```
 
@@ -138,35 +145,40 @@ The tool provides:
 
 ```
 ╭─ Current Financial Position ─╮
-│ Monthly Income: $14,750.00   │
-│ Monthly Expenses: $11,425.85 │
-│ Monthly Surplus: $3,324.15   │
-│ Annual Surplus: $39,889.80   │
+│ Monthly Income: $8,500.00    │
+│ Monthly Expenses: $6,200.00  │
+│ Monthly Surplus: $2,300.00   │
+│ Annual Surplus: $27,600.00   │
 ╰──────────────────────────────╯
 
-                   Strategy Comparison                    
-┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
-┃ Metric                 ┃ Rental Strategy ┃ Sell Strategy     ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
-│ New Monthly Surplus    │ $1,847.92       │ $825.44           │
-│ Annual Surplus         │ $22,175.04      │ $9,905.28         │
-└────────────────────────┴─────────────────┴───────────────────┘
+╭── Strategy Summary ──╮
+│ Rental:  $1,685/mo   │
+│ Sell:    $895/mo     │
+│ Diff:     +$790/mo  │
+│ Rental preferred     │
+╰──────────────────────╯
 
-╭──────────────────── Recommendation ─────────────────────╮
-│ RECOMMEND: Rental Strategy - $12,269.76 better annually │
-╰─────────────────────────────────────────────────────────╯
+╭────────────────────────── 🎯 Final Recommendation ───────────────────────────╮
+│ RENTAL STRATEGY PREFERRED - $9,480 better annually                           │
+│                                                                              │
+│ ✅ Even in worst-case rental scenarios, still outperforms selling            │
+╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Risk Scenarios Analyzed
 
 ### Rental Strategy Risks
-- Vacancy periods (3 months/year)
-- Major repairs ($12,000)
-- Lower rental income (20% reduction)
+- Vacancy periods (1-6 months/year)
+- Major repairs ($5,000-$15,000)
+- Reduced rental income (10-20% reduction)
+- Property management fees (8-12%)
+- Tenant damage/eviction costs ($3,000)
 
 ### Sell Strategy Risks  
-- Lower sale price ($35,000 less)
-- Closing/selling costs ($15,200)
+- Lower sale price ($25,000-$100,000 less)
+- Higher selling costs (up to 10% vs 7% baseline)
+- Market timing delays (6 months additional costs)
+- Moving and transition costs ($8,000)
 
 ## Contributing
 
