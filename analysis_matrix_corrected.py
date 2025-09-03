@@ -252,6 +252,15 @@ def generate_analysis_matrix():
                 })
     
     df = pd.DataFrame(results)
+
+    # Add rental traffic light based on rental advantage thresholds
+    # Green: advantage >= -300; Yellow: -600 <= advantage < -300; else Red
+    conditions = [
+        df['rental_advantage'] >= -300,
+        (df['rental_advantage'] >= -600) & (df['rental_advantage'] < -300),
+    ]
+    choices = ['Green', 'Yellow']
+    df['rental_traffic_light'] = np.select(conditions, choices, default='Red')
     
     # Display results
     print("\n" + "=" * 50)
